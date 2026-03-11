@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "User",
+  "namespace": "com.retail.users",
+  "fields": [
+    {"name": "username", "type": "string"},
+    {"name": "first_name", "type": "string"},
+    {"name": "last_name", "type": "string"},
+    {"name": "date_of_birth", "type": "string"},
+    {"name": "password_hash", "type": "string"},
+    {"name": "customer_tier", "type": "string"}
+  ]
+}

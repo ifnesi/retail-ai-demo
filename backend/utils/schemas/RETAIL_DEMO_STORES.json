@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "Store",
+  "namespace": "com.retail.stores",
+  "fields": [
+    {"name": "store_id", "type": "string"},
+    {"name": "name", "type": "string"},
+    {"name": "location", "type": "string"},
+    {"name": "icon", "type": "string"},
+    {"name": "promotions", "type": {"type": "array", "items": "string"}}
+  ]
+}

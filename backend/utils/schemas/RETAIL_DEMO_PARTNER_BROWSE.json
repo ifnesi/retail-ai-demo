@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "PartnerBrowse",
+  "namespace": "com.retail.events",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "username", "type": "string"},
+    {"name": "partner_name", "type": "string"},
+    {"name": "category", "type": "string"},
+    {"name": "last_product_viewed", "type": ["null", "string"], "default": null},
+    {"name": "last_product_category", "type": ["null", "string"], "default": null},
+    {"name": "last_product_price", "type": ["null", "double"], "default": null},
+    {"name": "promotions", "type": "string"},
+    {"name": "timestamp", "type": "long"}
+  ]
+}

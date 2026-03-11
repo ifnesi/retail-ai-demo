@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "AbandonCart",
+  "namespace": "com.retail.events",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "username", "type": "string"},
+    {"name": "cart_value", "type": "double"},
+    {"name": "items_count", "type": "int"},
+    {"name": "timestamp", "type": "long"}
+  ]
+}

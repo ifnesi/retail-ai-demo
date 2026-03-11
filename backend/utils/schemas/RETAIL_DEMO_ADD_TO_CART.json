@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "AddToCart",
+  "namespace": "com.retail.events",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "username", "type": "string"},
+    {"name": "product_id", "type": "string"},
+    {"name": "product_name", "type": "string"},
+    {"name": "quantity", "type": "int"},
+    {"name": "price", "type": "double"},
+    {"name": "timestamp", "type": "long"}
+  ]
+}

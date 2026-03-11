@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "ViewProduct",
+  "namespace": "com.retail.events",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "username", "type": "string"},
+    {"name": "product_id", "type": "string"},
+    {"name": "product_name", "type": "string"},
+    {"name": "category", "type": "string"},
+    {"name": "price", "type": "double"},
+    {"name": "description", "type": "string"},
+    {"name": "timestamp", "type": "long"}
+  ]
+}

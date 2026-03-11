@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "Product",
+  "namespace": "com.retail.products",
+  "fields": [
+    {"name": "product_id", "type": "string"},
+    {"name": "name", "type": "string"},
+    {"name": "category", "type": "string"},
+    {"name": "price", "type": "double"},
+    {"name": "description", "type": "string"},
+    {"name": "icon", "type": "string"}
+  ]
+}
