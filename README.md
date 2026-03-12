@@ -212,8 +212,8 @@ Both services run in parallel and auto-reload on code changes.
 ### Customer Tab (Act 1 & 2: Discovery & Cart Abandonment)
 
 1. **Login** with demo credentials:
-   - Username: `clarice` (or any of the 5 users)
-   - Password: `secret`
+   - Username: `clarice` (or any of the 4 users)
+   - Password: `secret` (the same password for all users)
 
 2. **Browse Products** - Click "View" to generate VIEW_PRODUCT events
 
@@ -325,7 +325,6 @@ Terraform automatically deploys all Flink SQL statements including:
 ### Visual Experience
 
 **Live AI Predictions:**
-- Purple gradient cards with glowing animation
 - Real AI-generated messages in monospace font
 - Timestamp showing when AI responded
 - **🤖 LIVE AI** badge indicating real-time GenAI
