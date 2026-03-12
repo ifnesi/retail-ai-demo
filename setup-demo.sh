@@ -112,6 +112,16 @@ echo "✅ Confluent Cloud infrastructure created"
 echo "✅ Configuration file generated: backend/utils/config/cflt-cloud-credentials.ini"
 echo ""
 
+# Extract system prompts from SQL files
+echo "📝 Extracting system prompts from SQL files..."
+python backend/utils/extract_prompts.py
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to extract system prompts"
+    exit 1
+fi
+echo "✅ System prompts extracted to frontend/src/config/system-prompts.json"
+echo ""
+
 # Publish required data to Kafka topics
 echo "Publishing required data to Kafka topics..."
 python backend/init_kafka.py

@@ -10,7 +10,7 @@ SELECT
   s.last_product_category,
   s.last_product_price,
   s.promotions,
-  p.welcome_message
+  p.llm_output
 FROM RETAIL_DEMO_STORE_ENTRY s,
 LATERAL TABLE(
   ML_PREDICT(
@@ -27,4 +27,4 @@ LATERAL TABLE(
       '). Store promotions: ', s.promotions
     )
   )
-) AS p(welcome_message);
+) AS p(llm_output);

@@ -1,6 +1,6 @@
 CREATE MODEL STORE_PERSONALIZATION
 INPUT (prompt STRING)
-OUTPUT (welcome_message STRING)
+OUTPUT (llm_output STRING)
 WITH (
   'provider'            = 'bedrock',
   'bedrock.connection'  = 'DEMO_RETAIL_BEDROCK',

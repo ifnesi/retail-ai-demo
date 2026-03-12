@@ -753,7 +753,9 @@ def get_latest_recovery_for_user(username):
 
 if __name__ == "__main__":
     print("Loading configuration...")
-    kafka_config, sr_config, schema_registry_client = load_config("cflt-cloud-credentials.ini")
+    kafka_config, sr_config, schema_registry_client = load_config(
+        "cflt-cloud-credentials.ini"
+    )
 
     print("Initializing producer...")
     init_producer()

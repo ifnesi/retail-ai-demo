@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './DashboardTab.css';
+import SYSTEM_PROMPTS from '../config/system-prompts.json';
+import { buildCartRecoveryContext, buildStoreContext, buildPartnerAdContext } from '../utils/contextBuilders';
 
 function DashboardTab({ user, aiPredictions }) {
-  const [events, setEvents] = useState({});
+  const [expandedPrompts, setExpandedPrompts] = useState({});
   const [metrics, setMetrics] = useState({
     viewsCount: 0,
     cartAdds: 0,
@@ -14,24 +16,7 @@ function DashboardTab({ user, aiPredictions }) {
     conversionRate: 0
   });
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      // Fetch events only (AI predictions are fetched in App.js)
-      const eventsResponse = await axios.get('/api/events/latest');
-      setEvents(eventsResponse.data);
-      calculateMetrics(eventsResponse.data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const calculateMetrics = (eventData) => {
+  const calculateMetrics = useCallback((eventData) => {
     const viewsCount = eventData.RETAIL_DEMO_VIEW_PRODUCT?.length || 0;
     const cartAdds = eventData.RETAIL_DEMO_ADD_TO_CART?.length || 0;
     const cartAbandonments = eventData.RETAIL_DEMO_ABANDON_CART?.length || 0;
@@ -53,6 +38,29 @@ function DashboardTab({ user, aiPredictions }) {
       totalCartValue,
       conversionRate
     });
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    try {
+      // Fetch events only (AI predictions are fetched in App.js)
+      const eventsResponse = await axios.get('/api/events/latest');
+      calculateMetrics(eventsResponse.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }, [calculateMetrics]);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 3000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
+
+  const togglePrompt = (key) => {
+    setExpandedPrompts(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
 
   const getAIRecommendations = () => {
@@ -63,9 +71,9 @@ function DashboardTab({ user, aiPredictions }) {
       aiPredictions.cart_recovery.slice(0, 3).forEach(pred => {
         const data = pred.data;
 
-        // Extract nudge_message - handle AVRO union format {"string": "..."}
+        // Extract llm_output - handle AVRO union format {"string": "..."}
         let nudgeMessage = 'Processing AI response...';
-        const possibleFields = [data.nudge_message, data.ai_nudge_message, data.ai_recovery_message];
+        const possibleFields = [data.llm_output, data.ai_llm_output, data.ai_recovery_message];
         for (let field of possibleFields) {
           if (field) {
             if (typeof field === 'string') {
@@ -85,7 +93,10 @@ function DashboardTab({ user, aiPredictions }) {
           action: nudgeMessage,
           uplift: '32% conversion increase expected (AI-powered)',
           isAiGenerated: true,
-          timestamp: pred.timestamp
+          timestamp: pred.timestamp,
+          systemPrompt: SYSTEM_PROMPTS.CART_RECOVERY,
+          inputContext: buildCartRecoveryContext(data),
+          promptKey: `cart_recovery_${pred.timestamp}`
         });
       });
     } else if (metrics.cartAbandonments > 0) {
@@ -105,13 +116,13 @@ function DashboardTab({ user, aiPredictions }) {
       aiPredictions.store_context.slice(0, 2).forEach(pred => {
         const data = pred.data;
 
-        // Extract welcome_message - handle AVRO union format {"string": "..."}
+        // Extract llm_output - handle AVRO union format {"string": "..."}
         let welcomeMessage = 'AI-generated welcome message';
-        if (data.welcome_message) {
-          if (typeof data.welcome_message === 'string') {
-            welcomeMessage = data.welcome_message;
-          } else if (data.welcome_message.string) {
-            welcomeMessage = data.welcome_message.string;
+        if (data.llm_output) {
+          if (typeof data.llm_output === 'string') {
+            welcomeMessage = data.llm_output;
+          } else if (data.llm_output.string) {
+            welcomeMessage = data.llm_output.string;
           }
         }
 
@@ -122,7 +133,10 @@ function DashboardTab({ user, aiPredictions }) {
           action: welcomeMessage,
           uplift: 'Enhanced in-store experience with online context',
           isAiGenerated: true,
-          timestamp: pred.timestamp
+          timestamp: pred.timestamp,
+          systemPrompt: SYSTEM_PROMPTS.STORE_PERSONALIZATION,
+          inputContext: buildStoreContext(data),
+          promptKey: `store_context_${pred.timestamp}`
         });
       });
     } else if (metrics.storeVisits > 0) {
@@ -141,13 +155,13 @@ function DashboardTab({ user, aiPredictions }) {
       aiPredictions.partner_ads.slice(0, 2).forEach(pred => {
         const data = pred.data;
 
-        // Extract ad_copy - handle AVRO union format {"string": "..."}
+        // Extract llm_output - handle AVRO union format {"string": "..."}
         let adCopy = 'AI-generated ad copy available';
-        if (data.ad_copy) {
-          if (typeof data.ad_copy === 'string') {
-            adCopy = data.ad_copy;
-          } else if (data.ad_copy.string) {
-            adCopy = data.ad_copy.string;
+        if (data.llm_output) {
+          if (typeof data.llm_output === 'string') {
+            adCopy = data.llm_output;
+          } else if (data.llm_output.string) {
+            adCopy = data.llm_output.string;
           }
         }
 
@@ -158,7 +172,10 @@ function DashboardTab({ user, aiPredictions }) {
           action: adCopy,
           uplift: '2x sales uplift from AI-powered personalized ads',
           isAiGenerated: true,
-          timestamp: pred.timestamp
+          timestamp: pred.timestamp,
+          systemPrompt: SYSTEM_PROMPTS.PARTNER_AD,
+          inputContext: buildPartnerAdContext(data),
+          promptKey: `partner_ads_${pred.timestamp}`
         });
       });
     } else if (metrics.partnerBrowses > 0) {
@@ -285,6 +302,28 @@ function DashboardTab({ user, aiPredictions }) {
                 {rec.timestamp && (
                   <div className="rec-timestamp">
                     Generated: {new Date(rec.timestamp).toLocaleTimeString()}
+                  </div>
+                )}
+                {rec.isAiGenerated && rec.systemPrompt && (
+                  <div className="prompt-details">
+                    <button
+                      className="toggle-prompt-btn"
+                      onClick={() => togglePrompt(rec.promptKey)}
+                    >
+                      {expandedPrompts[rec.promptKey] ? '▼' : '▶'} View Full Prompt & Context
+                    </button>
+                    {expandedPrompts[rec.promptKey] && (
+                      <div className="prompt-content">
+                        <div className="prompt-section">
+                          <strong>🎯 System Prompt (from Flink SQL Model):</strong>
+                          <div className="prompt-text">{rec.systemPrompt}</div>
+                        </div>
+                        <div className="prompt-section">
+                          <strong>📝 Input Context (sent to LLM):</strong>
+                          <div className="prompt-text">{rec.inputContext}</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

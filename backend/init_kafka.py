@@ -184,7 +184,9 @@ def populate_partners(kafka_config):
 
 if __name__ == "__main__":
     print("Loading configuration...")
-    kafka_config, sr_config, schema_registry_client = load_config("cflt-cloud-credentials.ini")
+    kafka_config, sr_config, schema_registry_client = load_config(
+        "cflt-cloud-credentials.ini"
+    )
 
     print("\nPopulating users...")
     populate_users(kafka_config)

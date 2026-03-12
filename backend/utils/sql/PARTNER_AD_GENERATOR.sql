@@ -1,6 +1,6 @@
 CREATE MODEL PARTNER_AD_GENERATOR
 INPUT (prompt STRING)
-OUTPUT (ad_copy STRING)
+OUTPUT (llm_output STRING)
 WITH (
   'provider'            = 'bedrock',
   'bedrock.connection'  = 'DEMO_RETAIL_BEDROCK',

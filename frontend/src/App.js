@@ -66,7 +66,7 @@ function App() {
         shownPredictionsRef.current.add(key);
         const data = pred.data;
         let nudgeMessage = 'AI cart recovery message generated';
-        const possibleFields = [data.nudge_message, data.ai_nudge_message, data.ai_recovery_message];
+        const possibleFields = [data.llm_output, data.ai_llm_output, data.ai_recovery_message];
         for (let field of possibleFields) {
           if (field) {
             if (typeof field === 'string') {
@@ -89,11 +89,11 @@ function App() {
         shownPredictionsRef.current.add(key);
         const data = pred.data;
         let welcomeMessage = 'AI welcome message generated';
-        if (data.welcome_message) {
-          if (typeof data.welcome_message === 'string') {
-            welcomeMessage = data.welcome_message;
-          } else if (data.welcome_message.string) {
-            welcomeMessage = data.welcome_message.string;
+        if (data.llm_output) {
+          if (typeof data.llm_output === 'string') {
+            welcomeMessage = data.llm_output;
+          } else if (data.llm_output.string) {
+            welcomeMessage = data.llm_output.string;
           }
         }
         showToast(`🏪 AI In-Store Context: ${welcomeMessage}`, 'success');
@@ -107,11 +107,11 @@ function App() {
         shownPredictionsRef.current.add(key);
         const data = pred.data;
         let adCopy = 'AI ad copy generated';
-        if (data.ad_copy) {
-          if (typeof data.ad_copy === 'string') {
-            adCopy = data.ad_copy;
-          } else if (data.ad_copy.string) {
-            adCopy = data.ad_copy.string;
+        if (data.llm_output) {
+          if (typeof data.llm_output === 'string') {
+            adCopy = data.llm_output;
+          } else if (data.llm_output.string) {
+            adCopy = data.llm_output.string;
           }
         }
         showToast(`📢 AI Partner Retail Media: ${adCopy}`, 'success');

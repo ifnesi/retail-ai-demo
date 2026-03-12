@@ -71,7 +71,7 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
             │
             ▼
 ┌────────────────────────────────────────────────────────────────┐
-│      Confluent Cloud (AWS)                                     │
+│                     Confluent Cloud (AWS)                      │
 │                                                                │
 │  ┌─────────────────────────────────┐  ┌─────────────────────┐  │
 │  │  Kafka Topics:                  │─►│  Schema Registry    │  │
@@ -100,7 +100,7 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 This demo uses **Terraform** to automatically provision everything:
 
 - ✅ **One Command Setup** - `./setup-demo.sh` does it all
-- ✅ **Complete Infrastructure** - Environment, clusters, Kafka topics, AVRO schemas, Flink SQL
+- ✅ **Complete Infrastructure** - Environment, BASIC Kafka Clusters, ESSENTIALS Schema Registry Cluster, Kafka topics, AVRO schemas, Flink Computing Pool
 - ✅ **Production-Ready Patterns** - API key management, secret handling, GitOps workflow
 - ✅ **Easy Cleanup** - `terraform destroy` removes everything
 
@@ -119,6 +119,7 @@ This demo uses **Terraform** to automatically provision everything:
 ## Prerequisites
 
 - **Python 3.8+**
+- **librdkafka (latest)**
 - **Node.js 16+**
 - **Terraform CLI** - for infrastructure deployment
 - **Confluent Cloud account** with Cloud API credentials ([create here](https://confluent.cloud/settings/api-keys))
@@ -212,7 +213,7 @@ Both services run in parallel and auto-reload on code changes.
 ### Customer Tab (Act 1 & 2: Discovery & Cart Abandonment)
 
 1. **Login** with demo credentials:
-   - Username: `clarice` (or any of the 4 users)
+   - Username: `clarice` (or any of the 4 users: `siri`, `hemal`, `adam` or `megan`)
    - Password: `secret` (the same password for all users)
 
 2. **Browse Products** - Click "View" to generate VIEW_PRODUCT events
