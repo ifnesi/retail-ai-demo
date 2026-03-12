@@ -39,7 +39,6 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 │                                                  │
 │  ┌────────────┐         ┌──────────────────┐     │
 │  │ Terraform  │────────►│ Confluent Cloud  │     │
-│  │            │         │  API (eu-west-1) │     │
 │  └────────────┘         └──────────────────┘     │
 │        │                                         │
 │        │ Creates:                                │
@@ -48,7 +47,7 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 │        ├─ Flink compute pool                     │
 │        ├─ Topics with AVRO schemas               │
 │        ├─ Flink SQL statements (AI)              │
-│        └─ API keys → config file                 │
+│        └─ API keys → Python config file          │
 └──────────────────────────────────────────────────┘
                        │
                        ▼
@@ -65,40 +64,43 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 │  ┌─────────────────┐  │                          │
 │  │  Flask Backend  │◄─┘                          │
 │  │  - Events API   │                             │
-│  │  - Kafka Producer/Consumer                    │
+│  │  - Kafka client |                             │
 │  │  - Session Mgmt │                             │
 │  └────────┬────────┘                             │
 └───────────┼──────────────────────────────────────┘
             │
             ▼
-┌──────────────────────────────────────────────────┐
-│      Confluent Cloud (eu-west-1 AWS)             │
-│                                                  │
-│  ┌──────────────────┐  ┌─────────────────────┐   │
-│  │  Kafka Topics    │  │  Schema Registry    │   │
-│  │  - USERS         │  │  (AVRO schemas)     │   │
-│  │  - PRODUCTS      │  └─────────────────────┘   │
-│  │  - STORES        │                            │
-│  │  - PARTNERS      │  ┌─────────────────────┐   │
-│  │  - Events        │  │  Flink SQL          │   │
-│  └──────────────────┘  │  - AI connections   │   │
-│                        │  - Stream joins     │   │
-│  ┌──────────────────┐  │  - ML_PREDICT       │   │
-│  │  AWS Bedrock     │◄─┤  - Real-time AI     │   │
-│  │  (Claude Models) │  └─────────────────────┘   │
-│  └──────────────────┘                            │
-└──────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│      Confluent Cloud (AWS)                                     │
+│                                                                │
+│  ┌─────────────────────────────────┐  ┌─────────────────────┐  │
+│  │  Kafka Topics:                  │─►│  Schema Registry    │  │
+│  │  - RETAIL_DEMO_USERS            │  │  (AVRO schemas)     │  │
+│  │  - RETAIL_DEMO_PRODUCTS         │  └─────────────────────┘  │
+│  │  - RETAIL_DEMO_STORES           │                           │
+│  │  - RETAIL_DEMO_PARTNERS         │                           |
+│  │  > Events:                      |                           |
+|  |    - RETAIL_DEMO_VIEW_PRODUCT   │                           |
+|  |    - RETAIL_DEMO_ADD_TO_CART    |                           |
+|  |    - RETAIL_DEMO_ABANDON_CART   |  ┌─────────────────────┐  |
+|  |    - RETAIL_DEMO_STORE_ENTRY    |◄─│  Flink SQL:         │  |
+|  |    - RETAIL_DEMO_PARTNER_BROWSE |  │  - AI connections   │  │
+│  └─────────────────────────────────┘  │  - Stream joins     │  │
+│  ┌──────────────────┐                 |  - ML_PREDICT       │  │
+│  |    AWS Bedrock   |◄────────────────┤  - Real-time AI     │  │
+│  │  (Claude Models) │                 └─────────────────────┘  │
+│  └──────────────────┘                                          │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## What Makes This Demo Special?
 
 **🚀 Fully Automated Infrastructure-as-Code**
 
-Unlike traditional demos that require manual setup in Confluent Cloud, this demo uses **Terraform** to automatically provision everything:
+This demo uses **Terraform** to automatically provision everything:
 
-- ✅ **One Command Setup** - `./setup.sh` does it all
-- ✅ **Complete Infrastructure** - Environment, clusters, topics, schemas, Flink SQL
-- ✅ **Reproducible** - Identical environments every time
+- ✅ **One Command Setup** - `./setup-demo.sh` does it all
+- ✅ **Complete Infrastructure** - Environment, clusters, Kafka topics, AVRO schemas, Flink SQL
 - ✅ **Production-Ready Patterns** - API key management, secret handling, GitOps workflow
 - ✅ **Easy Cleanup** - `terraform destroy` removes everything
 
@@ -145,7 +147,7 @@ export CONFLUENT_CLOUD_API_SECRET="YOUR_CONFLUENT_CLOUD_API_SECRET"
 ### 2. Run Setup (One Command!)
 
 ```bash
-./setup.sh
+./setup-demo.sh
 ```
 
 This automated setup script will:
@@ -357,7 +359,7 @@ All topics are automatically created by Terraform with AVRO schemas:
 ### Backend (Python/Flask)
 
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 python backend/app.py
 ```
 
@@ -402,7 +404,7 @@ To completely reset your local environment:
 
 ```bash
 # Remove Python virtual environment
-rm -rf venv/
+rm -rf .venv/
 
 # Remove frontend dependencies
 rm -rf frontend/node_modules/
@@ -484,7 +486,7 @@ retail-ai-demo/
 │   ├── providers.tf                   # Terraform providers
 │   ├── vars.tf                        # Variables and defaults
 │   └── apply.sh                       # Helper script for terraform operations
-├── setup.sh                           # One-command setup (Terraform + dependencies)
+├── setup-demo.sh                      # One-command setup (Terraform + dependencies)
 ├── run-demo.sh                        # Start backend + frontend
 ├── requirements.txt                   # Python dependencies
 ├── .env_template                      # Template for AWS & Confluent Cloud credentials
@@ -534,7 +536,7 @@ This demo demonstrates real industry metrics:
 
 ```bash
 # Setup (first time)
-./setup.sh
+./setup-demo.sh
 
 # Run demo
 ./run-demo.sh
