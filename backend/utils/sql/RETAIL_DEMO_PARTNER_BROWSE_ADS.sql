@@ -14,6 +14,7 @@ LATERAL TABLE(
     'PARTNER_AD_GENERATOR',
     CONCAT(
       'Customer ', p.username,
+      ' (', p.customer_tier, ' tier)',
       ' browsing category ', p.category,
       ' on ', p.partner_name,
       '. Last product viewed: ',

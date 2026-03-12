@@ -10,15 +10,16 @@ variable "demo_prefix" {
 # Confluent Cloud Kafka cluster variables
 # ----------------------------------------
 variable "cc_cloud_provider" {
+    # IMPORTANT: Keep it in AWS, as Bedrock is only available in AWS for now.
     description = "Cloud Provider in which to create the Confluent resources."
     type    = string
     default = "AWS"
 }
 
-variable "cc_cloud_region" {
+variable "cloud_region" {
     description = "Region in which to create the Confluent resources."
     type        = string
-    default     = "eu-west-1"
+    default     = "eu-central-1"
 }
 
 variable "cc_availability" {
@@ -32,8 +33,15 @@ variable "stream_governance" {
 }
 
 # ----------------------------------------
-# AWS Credentials (from environment)
+# AWS LLM & Credentials (from environment)
 # ----------------------------------------
+variable "llm_model" {
+    # IMPORTANT: Make sure this model exists on the AWS region selected.
+    # You can check available models here: https://docs.aws.amazon.com/bedrock/latest/userguide/available-models.html
+    type    = string
+    default = "anthropic.claude-sonnet-4-5-20250929-v1:0"
+}
+
 variable "aws_access_key_id" {
     description = "AWS Access Key ID for Bedrock"
     type        = string

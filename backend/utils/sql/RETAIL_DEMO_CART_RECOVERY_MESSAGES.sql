@@ -12,6 +12,7 @@ LATERAL TABLE(
     'CART_ABANDONMENT_NUDGE',
     CONCAT(
       'Customer ', a.username,
+      ' (', a.customer_tier, ' tier)',
       ' abandoned $', CAST(a.cart_value AS STRING),
       ' cart with ', CAST(a.items_count AS STRING), ' items.'
     )

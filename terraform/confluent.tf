@@ -26,7 +26,7 @@ output "cc_demo_env" {
 resource "confluent_kafka_cluster" "cc_kafka_cluster" {
     display_name = "kafka-${var.demo_prefix}-${random_id.id.hex}"
     cloud        = var.cc_cloud_provider
-    region       = var.cc_cloud_region
+    region       = var.cloud_region
     availability = var.cc_availability
     basic {}
     environment {
@@ -215,7 +215,7 @@ resource "confluent_schema" "avro-schemas" {
 resource "confluent_flink_compute_pool" "flink_compute_pool" {
     display_name     = "flink-${var.demo_prefix}-key-${random_id.id.hex}"
     cloud            = var.cc_cloud_provider
-    region           = var.cc_cloud_region
+    region           = var.cloud_region
     max_cfu          = 50
     environment {
         id = confluent_environment.cc_demo_env.id
@@ -223,7 +223,7 @@ resource "confluent_flink_compute_pool" "flink_compute_pool" {
 }
 data "confluent_flink_region" "flink_region" {
     cloud = var.cc_cloud_provider
-    region = var.cc_cloud_region
+    region = var.cloud_region
 }
 
 # --------------------------------------------------------
@@ -246,6 +246,9 @@ resource "confluent_flink_statement" "bedrock_connection" {
     statement = templatefile("${path.module}/../backend/utils/sql/DEMO_RETAIL_BEDROCK.sql", {
         aws_access_key_id     = var.aws_access_key_id
         aws_secret_access_key = var.aws_secret_access_key
+        aws_region            = var.cloud_region
+        llm_model             = var.llm_model
+        model_prefix          = split("-", var.cloud_region)[0]
     })
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id

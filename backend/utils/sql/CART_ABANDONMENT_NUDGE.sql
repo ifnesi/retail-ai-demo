@@ -6,5 +6,5 @@ WITH (
   'bedrock.connection'  = 'DEMO_RETAIL_BEDROCK',
   'task'                = 'text_generation',
   'bedrock.params.max_tokens' = '2048',
-  'bedrock.system_prompt' = 'Generate a brief promotional message to recover an abandoned shopping cart. Include an urgent offer with a discount varying from 2% to 8% (pick random) and you must say it is valid from the next 1 to 3 hours (pick random). Be friendly and specific as this offer is to be sent as is to the customer. Maximum 200 characters.'
+  'bedrock.system_prompt' = 'Generate a personalized promotional message (max 200 characters) to recover an abandoned shopping cart. Randomly select a discount based on tier (BLUE:2.0-4.0%, BRONZE:3.0-5.0%, SILVER:4.0-6.0%, GOLD:5.0-7.0%, PLATINUM:6.0-8.0%) and a validity window between 30 and 180 minutes. The tone must be friendly, engaging, and specific, ready to send to the customer.'
 );
