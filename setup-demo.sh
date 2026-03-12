@@ -25,6 +25,28 @@ fi
 echo "✅ Prerequisites check passed"
 echo ""
 
+# Install Python dependencies
+echo "📦 Installing Python dependencies..."
+if [ ! -d ".venv" ]; then
+    python3 -m venv .venv
+fi
+
+source .venv/bin/activate
+pip install -q -r requirements.txt
+echo "✅ Python dependencies installed"
+echo ""
+
+# Install frontend dependencies
+echo "📦 Installing frontend dependencies..."
+cd frontend
+if [ ! -d "node_modules" ]; then
+    npm install --silent
+fi
+cd ..
+
+echo "✅ Frontend dependencies installed"
+echo ""
+
 # Check .env file exists
 echo "Validating credentials..."
 if [ ! -f ".env" ]; then
@@ -88,28 +110,6 @@ fi
 cd ..
 echo "✅ Confluent Cloud infrastructure created"
 echo "✅ Configuration file generated: backend/utils/config/cflt-cloud-credentials.ini"
-echo ""
-
-# Create virtual environment
-echo "Creating Python virtual environment..."
-python3 -m venv venv
-source venv/bin/activate
-
-# Install Python dependencies
-echo "Installing Python dependencies..."
-pip install --upgrade pip
-pip install -r requirements.txt
-
-echo "✅ Python environment setup complete"
-echo ""
-
-# Install frontend dependencies
-echo "Installing frontend dependencies..."
-cd frontend
-npm install
-cd ..
-
-echo "✅ Frontend dependencies installed"
 echo ""
 
 # Publish required data to Kafka topics
