@@ -5,6 +5,7 @@
   "fields": [
     {"name": "event_id", "type": "string"},
     {"name": "username", "type": "string"},
+    {"name": "customer_tier", "type": "string"},
     {"name": "partner_name", "type": "string"},
     {"name": "category", "type": "string"},
     {"name": "last_product_viewed", "type": ["null", "string"], "default": null},

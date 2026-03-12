@@ -595,6 +595,7 @@ def abandon_cart():
     event = {
         "event_id": str(uuid.uuid4()),
         "username": session["username"],
+        "customer_tier": session.get("customer_tier", "BRONZE"),
         "cart_value": float(data["cart_value"]),
         "items_count": int(data["items_count"]),
         "timestamp": int(datetime.now().timestamp() * 1000),
@@ -693,6 +694,7 @@ def partner_browse():
     event = {
         "event_id": str(uuid.uuid4()),
         "username": session["username"],
+        "customer_tier": session.get("customer_tier", "BRONZE"),
         "partner_name": data["partner_name"],
         "category": data["category"],
         "last_product_viewed": last_product_viewed,

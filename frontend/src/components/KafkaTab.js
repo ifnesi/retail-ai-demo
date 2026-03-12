@@ -140,6 +140,14 @@ function KafkaTab() {
         {selectedTopic === 'RETAIL_DEMO_ABANDON_CART' && (
           <>
             <div className="event-row">
+              <span className="label">Customer Tier:</span>
+              <span className="value">
+                <span className={`customer-tier-badge tier-${data.customer_tier?.toLowerCase()}`}>
+                  {data.customer_tier}
+                </span>
+              </span>
+            </div>
+            <div className="event-row">
               <span className="label">Cart Value:</span>
               <span className="value">${data.cart_value?.toFixed(2)}</span>
             </div>
@@ -184,6 +192,14 @@ function KafkaTab() {
         {selectedTopic === 'RETAIL_DEMO_PARTNER_BROWSE' && (
           <>
             <div className="event-row">
+              <span className="label">Customer Tier:</span>
+              <span className="value">
+                <span className={`customer-tier-badge tier-${data.customer_tier?.toLowerCase()}`}>
+                  {data.customer_tier}
+                </span>
+              </span>
+            </div>
+            <div className="event-row">
               <span className="label">Partner:</span>
               <span className="value">{data.partner_name}</span>
             </div>
@@ -191,6 +207,16 @@ function KafkaTab() {
               <span className="label">Category:</span>
               <span className="value">{data.category}</span>
             </div>
+            {data.promotions && (
+              <div className="event-row event-row-full">
+                <span className="label">Promotions:</span>
+                <span className="value promotions-list">
+                  {data.promotions.split(';').map((promotion, idx) => (
+                    <span key={idx} className="promotion-item">• {promotion}</span>
+                  ))}
+                </span>
+              </div>
+            )}
           </>
         )}
       </div>
