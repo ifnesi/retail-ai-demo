@@ -28,7 +28,7 @@ ENV/
 
 # Credentials and secrets
 .env
-backend/config/cflt-cloud-credentials.ini
+backend/utils/config/cflt-cloud-credentials.ini
 *.pem
 *.key
 secrets/
