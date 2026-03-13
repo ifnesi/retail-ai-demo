@@ -685,7 +685,7 @@ def partner_browse():
     partner_promotions = ""
     for partner in partners.values():
         if partner["name"] == data["partner_name"]:
-            categories_dict = partner.get("categories", {})
+            categories_dict = partner.get("categories", dict())
             if data["category"] in categories_dict:
                 promotions_list = categories_dict[data["category"]]
                 partner_promotions = ";".join(promotions_list)

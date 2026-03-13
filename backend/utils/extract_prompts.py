@@ -62,7 +62,7 @@ def extract_concat_template(sql_content):
     parts = split_concat_args(concat_content)
 
     # Convert each part to JavaScript
-    js_parts = []
+    js_parts = list()
     for part in parts:
         js_part = convert_sql_to_js(part.strip())
         if js_part:
@@ -76,7 +76,7 @@ def split_concat_args(concat_content):
     """
     Split CONCAT arguments by comma, respecting nested parentheses and quotes.
     """
-    parts = []
+    parts = list()
     current = ""
     paren_depth = 0
     in_quotes = False
@@ -262,10 +262,10 @@ def generate_context_builders_js(context_templates):
 
 def main():
     script_dir = Path(__file__).parent
-    prompts = {}
+    prompts = dict()
 
     # Extract system prompts
-    print("Extracting system prompts...")
+    print("Extracting system prompts (Flink SQL CREATE MODEL)...")
     for key, sql_file in PROMPT_SQL_FILES.items():
         sql_path = script_dir / sql_file
 
@@ -284,8 +284,8 @@ def main():
             print(f"  ✗ Could not extract prompt from {sql_file}")
 
     # Extract context templates from CONCAT statements
-    print("\nExtracting input context templates from SQL...")
-    context_templates = {}
+    print("\nExtracting input context templates (Flink SQL CREATE TABLE)...")
+    context_templates = dict()
     for key, sql_file in CONTEXT_SQL_FILES.items():
         sql_path = script_dir / sql_file
 
@@ -305,7 +305,11 @@ def main():
 
     # Write system prompts to JSON file
     prompts_output_path = os.path.join(
-        script_dir.parent.parent, "frontend", "src", "config", "system-prompts.json"
+        script_dir.parent.parent,
+        "frontend",
+        "src",
+        "config",
+        "system-prompts.json",
     )
     with open(prompts_output_path, "w") as f:
         json.dump(prompts, f, indent=2)
