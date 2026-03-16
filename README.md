@@ -37,24 +37,24 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 ┌─────────────────────────┐   ┌──────────────────────────────────────────────────┐
 │   Application Runtime   │   │              Infrastructure Setup                │
 │                         │   │                         ┌───────────────────┐    │
-│  ┌─────────────────┐    │   │             ┌──────────►│  AWS              │    │
-│  │  React Frontend │    │   │             |           └───────────────────┘    │
-│  │  - Customer Tab │    │   │  ┌──────────┴─┐         ┌───────────────────┐    │
-│  │  - Kafka Tab    │    │   │  │ Terraform  │────────►│░░Confluent Cloud░░│    │
-│  │  - Dashboard    │    │   │  └────────────┘         └───────────────────┘    │
-│  └────────┬────────┘    │   │        │                                         │
+│  ┌──────────────────┐   │   │             ┌──────────►│  AWS              │    │
+│  │  REACT Frontend  │   │   │             |           └───────────────────┘    │
+│  │  ├─ Customer Tab │   │   │  ┌──────────┴─┐         ┌───────────────────┐    │
+│  │  ├─ Kafka Tab    │   │   │  │ Terraform  │────────►│░░Confluent Cloud░░│    │
+│  │  └─ Dashboard    │   │   │  └────────────┘         └───────────────────┘    │
+│  └────────┬─────────┘   │   │        │                                         │
 |           |             |   │        │ Creates:                                │
 │           ▼             │   │        ├── Environment, Kafka cluster            │
-│  ┌─────────────────┐    │   │        ├── Schema Registry                       │
-│  │  Flask Backend  │    │   │        ├── Flink compute pool                    │
-│  │  - Events API   │    │   │        ├── Topics with AVRO schemas              │
-│  │  - Kafka client |    │   │        ├── Flink SQL statements (AI)             │
-│  │  - Session Mgmt │    │   │        ├── API keys → Python config file         │
-│  └────────┬────────┘    │   │        ├── Postgres CDC Source Connector         │
-└───────────┼─────────────┘   │        └── AWS RDS Postgres Database             |
-            │                 └───────────┬──────────────────────────────────────┘
-            |                             |
-            ▼                             ▼
+│  ┌──────────────────┐   │   │        ├── Schema Registry                       │
+│  │  FLASK Backend   │   │   │        ├── Flink compute pool                    │
+│  │  ├─ Events API   │   │   │        ├── Topics with AVRO schemas              │
+│  │  ├─ Kafka client |   │   │        ├── Flink SQL statements (AI)             │
+│  │  └─ Session Mgmt │   │   │        ├── API keys → Python config file         │
+│  └────────┬─────────┘   │   │        ├── Postgres CDC Source Connector         │
+|           │             |   |        └── AWS RDS Postgres Database             |
+└───────────┼─────────────┘   └───┬──────────────────────────────────────────────┘
+            |                     |
+            ▼                     ▼
 ┌────────────────────────────────────────────────────────────────┐
 │░░░░░░░░░░░░░░░░░░░░ CONFLUENT CLOUD (AWS)░░░░░░░░░░░░░░░░░░░░░░│
 │░░┌─────────────────────────────────┐░░┌─────────────────────┐░░│
@@ -65,7 +65,7 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 │░░│    - db_public_stores           │░░░░░░░░░░ |░░░░░░░░░░░░░░░│
 │░░│    - db_public_users            │░░┌────────┴────────────┐░░|
 │░░│  Clickstream Events             |░░│  Postgres CDC       │░░|
-|░░|    - RETAIL_DEMO_VIEW_PRODUCT   │◄─│  Connector          │░░|
+|░░|    - RETAIL_DEMO_VIEW_PRODUCT   │◄─│  Source Connector   │░░|
 |░░|    - RETAIL_DEMO_ADD_TO_CART    |░░│  (Fully Managed)    │░░|
 |░░|    - RETAIL_DEMO_ABANDON_CART   |░░└────────┬────────────┘░░|
 |░░|    - RETAIL_DEMO_STORE_ENTRY    |░░░░░░░░░░░│░░░░░░░░░░░░░░░|
