@@ -189,50 +189,10 @@
   display: block;
 }
 
+/* Override global customer-tier-badge for inline display in event details */
 .event-details .customer-tier-badge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   width: fit-content;
-}
-
-.customer-tier-badge.tier-platinum {
-  background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 100%);
-  color: #1a1a1a;
-  border: 1px solid #c0c0c0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.customer-tier-badge.tier-gold {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  color: #8b6914;
-  border: 1px solid #d4af37;
-  box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
-}
-
-.customer-tier-badge.tier-silver {
-  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-  color: #4a4a4a;
-  border: 1px solid #a8a8a8;
-  box-shadow: 0 2px 4px rgba(192, 192, 192, 0.2);
-}
-
-.customer-tier-badge.tier-bronze {
-  background: linear-gradient(135deg, #cd7f32 0%, #e5a168 100%);
-  color: #5c3a1f;
-  border: 1px solid #b5651d;
-  box-shadow: 0 2px 4px rgba(205, 127, 50, 0.2);
-}
-
-.customer-tier-badge.tier-blue {
-  background: linear-gradient(135deg, #4a90e2 0%, #6cb4ff 100%);
-  color: #1a3a5c;
-  border: 1px solid #3b7dd6;
-  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.3);
 }
 
 .kafka-info {

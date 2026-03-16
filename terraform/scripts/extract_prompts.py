@@ -3,25 +3,27 @@
 Extract system prompts and input context templates from Flink SQL files.
 This ensures the frontend always displays the correct prompts without hardcoding.
 """
-import re
 import os
+import re
 import json
+
 from pathlib import Path
+
 
 # SQL files containing the models
 PROMPT_SQL_FILES = {
-    "CART_RECOVERY": os.path.join("sql", "CART_ABANDONMENT_NUDGE.sql"),
-    "STORE_PERSONALIZATION": os.path.join("sql", "STORE_PERSONALIZATION.sql"),
-    "PARTNER_AD": os.path.join("sql", "PARTNER_AD_GENERATOR.sql"),
+    "CART_RECOVERY": os.path.join("flink", "CART_ABANDONMENT_NUDGE.sql"),
+    "STORE_PERSONALIZATION": os.path.join("flink", "STORE_PERSONALIZATION.sql"),
+    "PARTNER_AD": os.path.join("flink", "PARTNER_AD_GENERATOR.sql"),
 }
 
 # SQL files containing the CONCAT templates for input context
 # Key format: function name will be build{Key}Context
 # e.g., "CartRecovery" -> buildCartRecoveryContext
 CONTEXT_SQL_FILES = {
-    "CartRecovery": os.path.join("sql", "RETAIL_DEMO_CART_RECOVERY_MESSAGES.sql"),
-    "Store": os.path.join("sql", "RETAIL_DEMO_STORE_VISIT_CONTEXT.sql"),
-    "PartnerAd": os.path.join("sql", "RETAIL_DEMO_PARTNER_BROWSE_ADS.sql"),
+    "CartRecovery": os.path.join("flink", "RETAIL_DEMO_CART_RECOVERY_MESSAGES.sql"),
+    "Store": os.path.join("flink", "RETAIL_DEMO_STORE_VISIT_CONTEXT.sql"),
+    "PartnerAd": os.path.join("flink", "RETAIL_DEMO_PARTNER_BROWSE_ADS.sql"),
 }
 
 
@@ -224,7 +226,7 @@ def generate_context_builders_js(context_templates):
     file_list = "\n// - ".join([""] + sql_files)
 
     js_code = f"""// Auto-generated from Flink SQL CONCAT templates
-// DO NOT EDIT - Run backend/utils/extract_prompts.py to regenerate
+// DO NOT EDIT - Run terraform/scripts/extract_prompts.py to regenerate
 //
 // These functions are dynamically generated from:{file_list}
 
@@ -261,15 +263,22 @@ def generate_context_builders_js(context_templates):
 
 
 def main():
-    script_dir = Path(__file__).parent
     prompts = dict()
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    sql_source_dir = os.path.abspath(os.path.join(script_dir, ".."))
+    output_path = os.path.join(
+        os.path.abspath(os.path.join(sql_source_dir, "..")),
+        "frontend",
+        "src",
+    )
 
     # Extract system prompts
     print("Extracting system prompts (Flink SQL CREATE MODEL)...")
     for key, sql_file in PROMPT_SQL_FILES.items():
-        sql_path = script_dir / sql_file
+        sql_path = os.path.join(sql_source_dir, sql_file)
 
-        if not sql_path.exists():
+        if not os.path.isfile(sql_path):
             print(f"  Warning: SQL file not found: {sql_path}")
             continue
 
@@ -287,9 +296,9 @@ def main():
     print("\nExtracting input context templates (Flink SQL CREATE TABLE)...")
     context_templates = dict()
     for key, sql_file in CONTEXT_SQL_FILES.items():
-        sql_path = script_dir / sql_file
+        sql_path = os.path.join(sql_source_dir, sql_file)
 
-        if not sql_path.exists():
+        if not os.path.isfile(sql_path):
             print(f"  Warning: SQL file not found: {sql_path}")
             continue
 
@@ -304,13 +313,7 @@ def main():
             print(f"  ✗ Could not extract CONCAT template from {sql_file}")
 
     # Write system prompts to JSON file
-    prompts_output_path = os.path.join(
-        script_dir.parent.parent,
-        "frontend",
-        "src",
-        "config",
-        "system-prompts.json",
-    )
+    prompts_output_path = os.path.join(output_path, "config", "system-prompts.json")
     with open(prompts_output_path, "w") as f:
         json.dump(prompts, f, indent=2)
 
@@ -320,13 +323,7 @@ def main():
     # Write context builders to JavaScript file
     if context_templates:
         js_code = generate_context_builders_js(context_templates)
-        context_output_path = os.path.join(
-            script_dir.parent.parent,
-            "frontend",
-            "src",
-            "utils",
-            "contextBuilders.js",
-        )
+        context_output_path = os.path.join(output_path, "utils", "contextBuilders.js")
         with open(context_output_path, "w") as f:
             f.write(js_code)
 

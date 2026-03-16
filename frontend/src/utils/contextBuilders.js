@@ -1,5 +1,5 @@
 // Auto-generated from Flink SQL CONCAT templates
-// DO NOT EDIT - Run backend/utils/extract_prompts.py to regenerate
+// DO NOT EDIT - Run terraform/scripts/extract_prompts.py to regenerate
 //
 // These functions are dynamically generated from:
 // - RETAIL_DEMO_CART_RECOVERY_MESSAGES.sql

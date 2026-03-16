@@ -5,6 +5,10 @@ terraform {
             source  = "confluentinc/confluent"
             version = "2.63.0"
         }
+        aws = {
+            source  = "hashicorp/aws"
+            version = "~> 5.0"
+        }
         random = {
             source  = "hashicorp/random"
             version = "~> 3.1"
@@ -12,6 +16,10 @@ terraform {
         local = {
             source  = "hashicorp/local"
             version = "~> 2.1"
+        }
+        null = {
+            source  = "hashicorp/null"
+            version = "~> 3.2"
         }
     }
 }

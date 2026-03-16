@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './KafkaTab.css';
 
-const TOPICS = ['RETAIL_DEMO_USERS', 'RETAIL_DEMO_VIEW_PRODUCT', 'RETAIL_DEMO_ADD_TO_CART', 'RETAIL_DEMO_ABANDON_CART', 'RETAIL_DEMO_STORE_ENTRY', 'RETAIL_DEMO_PARTNER_BROWSE'];
-
 const TOPIC_ALIASES = {
-  'RETAIL_DEMO_USERS': 'View Customers',
+  'db_public_users': 'View Customers',
   'RETAIL_DEMO_VIEW_PRODUCT': 'View Product',
   'RETAIL_DEMO_ADD_TO_CART': 'Add to Cart',
   'RETAIL_DEMO_ABANDON_CART': 'Abandon Cart',
   'RETAIL_DEMO_STORE_ENTRY': 'Store Entry',
   'RETAIL_DEMO_PARTNER_BROWSE': 'Partner Browse'
 };
+
+const TOPICS = Object.keys(TOPIC_ALIASES);
 
 function KafkaTab() {
   const [events, setEvents] = useState({});
@@ -61,7 +61,7 @@ function KafkaTab() {
 
     return (
       <div className="event-details">
-        {selectedTopic === 'RETAIL_DEMO_USERS' && (
+        {selectedTopic === 'db_public_users' && (
           <>
             <div className="event-row">
               <span className="label">Username:</span>
@@ -90,7 +90,7 @@ function KafkaTab() {
           </>
         )}
 
-        {selectedTopic !== 'RETAIL_DEMO_USERS' && (
+        {selectedTopic !== 'db_public_users' && (
           <>
             <div className="event-row">
               <span className="label">Event ID:</span>
@@ -306,7 +306,7 @@ function KafkaTab() {
         {topicEvents.length === 0 ? (
           <div className="no-events">
             <p>No events yet for this topic.</p>
-            {selectedTopic === 'RETAIL_DEMO_USERS' ? (
+            {selectedTopic === 'db_public_users' ? (
               <p className="hint">Users are loaded automatically from Kafka on startup.</p>
             ) : (
               <p className="hint">Go to the Customer tab to generate events!</p>
@@ -318,8 +318,8 @@ function KafkaTab() {
               <div key={idx} className="event-card">
                 <div className="event-header">
                   <span className="event-time">
-                    {selectedTopic === 'RETAIL_DEMO_USERS'
-                      ? formatTimestamp(event.timestamp)
+                    {selectedTopic === 'db_public_users'
+                      ? formatEventTimestamp(event.timestamp)
                       : formatEventTimestamp(event.data.timestamp)}
                   </span>
                 </div>

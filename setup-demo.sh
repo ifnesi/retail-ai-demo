@@ -33,6 +33,10 @@ fi
 
 source .venv/bin/activate
 pip install -q -r requirements.txt
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to install Python dependencies"
+    exit 1
+fi
 echo "✅ Python dependencies installed"
 echo ""
 
@@ -41,6 +45,10 @@ echo "📦 Installing frontend dependencies..."
 cd frontend
 if [ ! -d "node_modules" ]; then
     npm install --silent
+    if [ $? -ne 0 ]; then
+        echo "❌ Failed to install frontend dependencies"
+        exit 1
+    fi
 fi
 cd ..
 
@@ -107,14 +115,17 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cd ..
-echo "✅ Confluent Cloud infrastructure created"
+echo "✅ Confluent Cloud and AWS infrastructure created"
 echo "✅ Configuration file generated: backend/utils/config/cflt-cloud-credentials.ini"
+echo ""
+echo "RDS Postgres connection details:"
+terraform output -json rds_connection
+cd ..
 echo ""
 
 # Extract system prompts from SQL files
 echo "📝 Extracting system prompts from SQL files..."
-python backend/utils/extract_prompts.py
+python terraform/scripts/extract_prompts.py
 if [ $? -ne 0 ]; then
     echo "❌ Failed to extract system prompts"
     exit 1
@@ -122,13 +133,9 @@ fi
 echo "✅ System prompts extracted to frontend/src/config/system-prompts.json"
 echo ""
 
-# Publish required data to Kafka topics
-echo "Publishing required data to Kafka topics..."
-python backend/init_kafka.py
-
 echo "✅ Setup complete!"
 echo ""
 
 echo "Next step:"
-echo "Start the demo: ./run-demo.sh"
+echo "▶️ Start the demo: ./run-demo.sh"
 echo ""

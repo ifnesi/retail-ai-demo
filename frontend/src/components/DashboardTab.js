@@ -301,7 +301,7 @@ function DashboardTab({ user, aiPredictions }) {
                 </div>
                 {rec.timestamp && (
                   <div className="rec-timestamp">
-                    Generated: {new Date(rec.timestamp).toLocaleTimeString()}
+                    Generated: {new Date(rec.timestamp).toLocaleString()}
                   </div>
                 )}
                 {rec.isAiGenerated && rec.systemPrompt && (

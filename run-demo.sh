@@ -26,7 +26,7 @@ trap cleanup SIGINT SIGTERM
 # Extract system prompts from SQL files
 echo "📝 Extracting system prompts from SQL files..."
 source .venv/bin/activate
-python backend/utils/extract_prompts.py
+python terraform/scripts/extract_prompts.py
 if [ $? -ne 0 ]; then
     echo "❌ Failed to extract system prompts"
     exit 1

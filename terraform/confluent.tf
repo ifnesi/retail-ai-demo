@@ -164,17 +164,23 @@ resource "confluent_api_key" "flink_api_key" {
 # Kafka topics/schema
 # --------------------------------------------------------
 variable "topics" {
-    type = map(string)
+    type = map(object({
+        partitions_count = number
+        cleanup_policy   = string
+        retention_ms     = string
+        needs_schema     = bool
+    }))
     default = {
-        RETAIL_DEMO_USERS = "compact"
-        RETAIL_DEMO_PRODUCTS = "compact"
-        RETAIL_DEMO_STORES = "compact"
-        RETAIL_DEMO_PARTNERS = "compact"
-        RETAIL_DEMO_VIEW_PRODUCT = "delete"
-        RETAIL_DEMO_ADD_TO_CART = "delete"
-        RETAIL_DEMO_ABANDON_CART = "delete"
-        RETAIL_DEMO_STORE_ENTRY = "delete"
-        RETAIL_DEMO_PARTNER_BROWSE = "delete"
+        # topic_name                = {partitions_count, cleanup_policy, retention_ms, needs_schema}
+        db_public_users             = {partitions_count = 1, cleanup_policy = "compact", retention_ms = "604800000", needs_schema = false}
+        db_public_products          = {partitions_count = 1, cleanup_policy = "compact", retention_ms = "604800000", needs_schema = false}
+        db_public_stores            = {partitions_count = 1, cleanup_policy = "compact", retention_ms = "604800000", needs_schema = false}
+        db_public_partners          = {partitions_count = 1, cleanup_policy = "compact", retention_ms = "604800000", needs_schema = false}
+        RETAIL_DEMO_VIEW_PRODUCT    = {partitions_count = 1, cleanup_policy = "delete",  retention_ms = "604800000", needs_schema = true}
+        RETAIL_DEMO_ADD_TO_CART     = {partitions_count = 1, cleanup_policy = "delete",  retention_ms = "604800000", needs_schema = true}
+        RETAIL_DEMO_ABANDON_CART    = {partitions_count = 1, cleanup_policy = "delete",  retention_ms = "604800000", needs_schema = true}
+        RETAIL_DEMO_STORE_ENTRY     = {partitions_count = 1, cleanup_policy = "delete",  retention_ms = "604800000", needs_schema = true}
+        RETAIL_DEMO_PARTNER_BROWSE  = {partitions_count = 1, cleanup_policy = "delete",  retention_ms = "604800000", needs_schema = true}
     }
 }
 resource "confluent_kafka_topic" "topics" {
@@ -188,25 +194,119 @@ resource "confluent_kafka_topic" "topics" {
         key            = confluent_api_key.app_main_kafka_cluster_key.id
         secret         = confluent_api_key.app_main_kafka_cluster_key.secret
     }
-    partitions_count   = 1
-    config             = {
-        "cleanup.policy"      = each.value
-        "retention.ms"        = "604800000"  # 7 days
+    partitions_count          = each.value.partitions_count
+    config                    = {
+        "cleanup.policy"      = each.value.cleanup_policy
+        "retention.ms"        = each.value.retention_ms
     }
+    depends_on = [
+        confluent_kafka_cluster.cc_kafka_cluster,
+        data.confluent_schema_registry_cluster.sr,
+        confluent_api_key.app_main_kafka_cluster_key
+    ]
 }
-resource "confluent_schema" "avro-schemas" {
-    for_each = var.topics
+
+# Filter topics that need schemas
+locals {
+    topics_with_schemas = [
+        for topic, config in var.topics : topic
+        if config.needs_schema
+    ]
+}
+resource "confluent_schema" "avro_schemas" {
+    for_each = toset(local.topics_with_schemas)
     schema_registry_cluster {
         id = data.confluent_schema_registry_cluster.sr.id
     }
     rest_endpoint = data.confluent_schema_registry_cluster.sr.rest_endpoint
-    subject_name  = "${each.key}-value"
+    subject_name  = "${each.value}-value"
     format        = "AVRO"
-    schema        = file("${path.module}/../backend/utils/schemas/${each.key}.json")
+    schema        = file("${path.module}/../backend/utils/schemas/${each.value}.json")
     credentials {
         key       = confluent_api_key.sr_cluster_key.id
         secret    = confluent_api_key.sr_cluster_key.secret
     }
+    depends_on = [
+        confluent_kafka_topic.topics
+    ]
+}
+
+# --------------------------------------------------------
+# PostgreSQL CDC Source Connector v2
+# --------------------------------------------------------
+resource "confluent_connector" "postgres_cdc_source" {
+    environment {
+        id = confluent_environment.cc_demo_env.id
+    }
+    kafka_cluster {
+        id = confluent_kafka_cluster.cc_kafka_cluster.id
+    }
+
+    config_sensitive = {
+        "database.password" = random_password.rds_password.result
+    }
+
+    config_nonsensitive = {
+        "connector.class"          = "PostgresCdcSourceV2"
+        "name"                     = "PostgresCdcSourceV2_${var.demo_prefix}_${random_id.id.hex}"
+        "kafka.auth.mode"          = "SERVICE_ACCOUNT"
+        "kafka.service.account.id" = confluent_service_account.app_main.id
+        "tasks.max"                = "1"
+
+        # Database connection
+        "database.hostname"        = aws_db_instance.postgres.address
+        "database.port"            = tostring(aws_db_instance.postgres.port)
+        "database.user"            = var.aws_rds_username
+        "database.dbname"          = var.aws_rds_database_name
+        "database.server.name"     = var.aws_rds_database_name
+        "database.sslmode"         = "require"
+
+        # Tables to capture
+        "table.include.list"       = "public.users,public.products,public.stores,public.partners"
+
+        # Snapshot configuration - only fetch new data, not existing
+        "snapshot.mode"            = "initial"
+
+        # Replication slot and publication
+        "slot.name"                = "${var.aws_rds_database_name}_debezium"
+        "publication.name"         = "${var.aws_rds_database_name}_dbz_publication"
+        "publication.autocreate.mode" = "disabled"
+
+        # Topic configuration
+        "topic.prefix"             = "db"
+        "tombstones.on.delete"     = "true"
+
+        # Output format
+        "output.data.format"       = "AVRO"
+        "output.key.format"        = "AVRO"
+
+        # Insert mode
+        "insert.mode"              = "UPSERT"
+
+        # After-state only (no before state in change events)
+        "after.state.only"         = "true"
+
+        # Decimal handling
+        "decimal.handling.mode"    = "double"
+
+        # Transforms - TopicRegexRouter to convert db.postgres.public.<table> -> db_public_<table>
+        "transforms"                             = "TopicRegexRouter"
+        "transforms.TopicRegexRouter.type"       = "io.confluent.connect.cloud.transforms.TopicRegexRouter"
+        "transforms.TopicRegexRouter.regex"      = "(.*)\\.(.*)\\.(.*)"
+        "transforms.TopicRegexRouter.replacement" = "$1_$2_$3"
+    }
+
+    depends_on = [
+        confluent_kafka_cluster.cc_kafka_cluster,
+        confluent_api_key.app_main_kafka_cluster_key,
+        aws_db_instance.postgres,
+        null_resource.init_postgres_schema
+    ]
+}
+
+output "postgres_cdc_connector_id" {
+    description = "PostgreSQL CDC Connector ID"
+    value       = confluent_connector.postgres_cdc_source.id
 }
 
 # --------------------------------------------------------
@@ -243,7 +343,7 @@ resource "confluent_flink_statement" "bedrock_connection" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = templatefile("${path.module}/../backend/utils/sql/DEMO_RETAIL_BEDROCK.sql", {
+    statement = templatefile("${path.module}/flink/DEMO_RETAIL_BEDROCK.sql", {
         aws_access_key_id     = var.aws_access_key_id
         aws_secret_access_key = var.aws_secret_access_key
         aws_region            = var.cloud_region
@@ -262,7 +362,8 @@ resource "confluent_flink_statement" "bedrock_connection" {
     depends_on = [
         confluent_flink_compute_pool.flink_compute_pool,
         confluent_kafka_topic.topics,
-        confluent_schema.avro-schemas
+        confluent_schema.avro_schemas,
+        confluent_connector.postgres_cdc_source
     ]
 }
 
@@ -280,7 +381,7 @@ resource "confluent_flink_statement" "cart_abandonment_nudge" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = file("${path.module}/../backend/utils/sql/CART_ABANDONMENT_NUDGE.sql")
+    statement = file("${path.module}/flink/CART_ABANDONMENT_NUDGE.sql")
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id
         "sql.current-database" = resource.confluent_kafka_cluster.cc_kafka_cluster.id
@@ -309,7 +410,7 @@ resource "confluent_flink_statement" "cart_recovery_messages" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = file("${path.module}/../backend/utils/sql/RETAIL_DEMO_CART_RECOVERY_MESSAGES.sql")
+    statement = file("${path.module}/flink/RETAIL_DEMO_CART_RECOVERY_MESSAGES.sql")
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id
         "sql.current-database" = resource.confluent_kafka_cluster.cc_kafka_cluster.id
@@ -338,7 +439,7 @@ resource "confluent_flink_statement" "store_personalization" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = file("${path.module}/../backend/utils/sql/STORE_PERSONALIZATION.sql")
+    statement = file("${path.module}/flink/STORE_PERSONALIZATION.sql")
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id
         "sql.current-database" = resource.confluent_kafka_cluster.cc_kafka_cluster.id
@@ -367,7 +468,7 @@ resource "confluent_flink_statement" "store_visit_context" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = file("${path.module}/../backend/utils/sql/RETAIL_DEMO_STORE_VISIT_CONTEXT.sql")
+    statement = file("${path.module}/flink/RETAIL_DEMO_STORE_VISIT_CONTEXT.sql")
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id
         "sql.current-database" = resource.confluent_kafka_cluster.cc_kafka_cluster.id
@@ -396,7 +497,7 @@ resource "confluent_flink_statement" "partner_ad_generator" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = file("${path.module}/../backend/utils/sql/PARTNER_AD_GENERATOR.sql")
+    statement = file("${path.module}/flink/PARTNER_AD_GENERATOR.sql")
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id
         "sql.current-database" = resource.confluent_kafka_cluster.cc_kafka_cluster.id
@@ -425,7 +526,7 @@ resource "confluent_flink_statement" "partner_browse_ads" {
     principal {
         id = confluent_service_account.app_main.id
     }
-    statement = file("${path.module}/../backend/utils/sql/RETAIL_DEMO_PARTNER_BROWSE_ADS.sql")
+    statement = file("${path.module}/flink/RETAIL_DEMO_PARTNER_BROWSE_ADS.sql")
     properties = {
         "sql.current-catalog"  = resource.confluent_environment.cc_demo_env.id
         "sql.current-database" = resource.confluent_kafka_cluster.cc_kafka_cluster.id
@@ -441,7 +542,7 @@ resource "confluent_flink_statement" "partner_browse_ads" {
 }
 
 # --------------------------------------------------------
-# Generate Python Config File
+# Generate Python Config File with the Credentials
 # --------------------------------------------------------
 resource "local_file" "python_config" {
     filename = "${path.module}/../backend/utils/config/cflt-cloud-credentials.ini"

@@ -54,6 +54,18 @@ variable "aws_secret_access_key" {
     sensitive   = true
 }
 
+variable "aws_rds_database_name" {
+    description = "Database name for AWS RDS instance"
+    type        = string
+    default     = "postgres"
+}
+
+variable "aws_rds_username" {
+    description = "Username for AWS RDS instance"
+    type        = string
+    default     = "postgres"
+}
+
 # --------------------------------------------------------
 # This 'random_id_4' will make whatever you create (names, etc)
 # unique in your account.

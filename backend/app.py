@@ -16,7 +16,6 @@ from confluent_kafka.schema_registry.avro import AvroSerializer, AvroDeserialize
 from confluent_kafka.serialization import (
     SerializationContext,
     MessageField,
-    StringDeserializer,
 )
 
 from utils import *
@@ -79,8 +78,9 @@ def get_user_from_kafka(username):
     consumer = Consumer(consumer_config)
     consumer.subscribe([RETAIL_DEMO_USERS])
 
+    # Use AVRO deserializer for CDC data from Postgres
     user_deserializer = AvroDeserializer(schema_registry_client)
-    string_deserializer = StringDeserializer("utf-8")
+    key_deserializer = AvroDeserializer(schema_registry_client)
 
     user_data = None
     timeout = time.time() + 10  # 10 second timeout
@@ -93,8 +93,18 @@ def get_user_from_kafka(username):
             if msg.error():
                 continue
 
-            key = string_deserializer(msg.key())
-            if key == username:
+            # CDC messages have AVRO key
+            key_data = (
+                key_deserializer(
+                    msg.key(),
+                    SerializationContext(RETAIL_DEMO_USERS, MessageField.KEY),
+                )
+                if msg.key()
+                else {}
+            )
+            key_username = key_data.get("username", "")
+
+            if key_username == username:
                 value = user_deserializer(
                     msg.value(),
                     SerializationContext(RETAIL_DEMO_USERS, MessageField.VALUE),
@@ -138,9 +148,10 @@ def consume_users_thread():
     consumer = Consumer(consumer_config)
     consumer.subscribe([RETAIL_DEMO_USERS])
 
+    # Use AVRO deserializer for CDC data from Postgres
     deserializer = AvroDeserializer(schema_registry_client)
 
-    print("Started users consumer (reading from RETAIL_DEMO_USERS)")
+    print(f"Started users consumer (reading from {RETAIL_DEMO_USERS})")
 
     while True:
         try:
@@ -170,8 +181,10 @@ def consume_users_thread():
                 )
 
                 # Add to latest events for Kafka Events tab
+                # Use Kafka message timestamp (when it was published to the topic)
+                msg_timestamp = msg.timestamp()[1]  # Returns (type, timestamp_ms)
                 latest_events[RETAIL_DEMO_USERS].insert(
-                    0, {"timestamp": datetime.now().isoformat(), "data": value}
+                    0, {"timestamp": msg_timestamp, "data": value}
                 )
                 # Keep only last MAX_EVENTS_STORED events
                 latest_events[RETAIL_DEMO_USERS] = latest_events[RETAIL_DEMO_USERS][
@@ -198,9 +211,10 @@ def consume_products_thread():
     consumer = Consumer(consumer_config)
     consumer.subscribe([RETAIL_DEMO_PRODUCTS])
 
+    # Use AVRO deserializer for CDC data from Postgres
     deserializer = AvroDeserializer(schema_registry_client)
 
-    print("Started products consumer (reading from RETAIL_DEMO_PRODUCTS)")
+    print(f"Started products consumer (reading from {RETAIL_DEMO_PRODUCTS})")
 
     while True:
         try:
@@ -270,6 +284,13 @@ def consume_stores_thread():
                 ),
             )
 
+            # Parse promotions from JSON string to array (CDC connector sends it as JSON string)
+            if "promotions" in value and isinstance(value["promotions"], str):
+                try:
+                    value["promotions"] = json.loads(value["promotions"])
+                except json.JSONDecodeError:
+                    value["promotions"] = []
+
             # Store in memory by store_id
             stores[value["store_id"]] = value
             print(f"Store loaded: {value['store_id']} - {value['name']}")
@@ -318,6 +339,13 @@ def consume_partners_thread():
                 ),
             )
 
+            # Parse categories from JSON string to object (CDC connector sends it as JSON string)
+            if "categories" in value and isinstance(value["categories"], str):
+                try:
+                    value["categories"] = json.loads(value["categories"])
+                except json.JSONDecodeError:
+                    value["categories"] = {}
+
             # Store in memory by partner_id
             partners[value["partner_id"]] = value
             print(f"Partner loaded: {value['partner_id']} - {value['name']}")
@@ -362,8 +390,10 @@ def consume_events_thread(topic):
 
             # Add to latest events
             if topic in latest_events:
+                # Use Kafka message timestamp (when it was published to the topic)
+                msg_timestamp = msg.timestamp()[1]  # Returns (type, timestamp_ms)
                 latest_events[topic].insert(
-                    0, {"timestamp": datetime.now().isoformat(), "data": value}
+                    0, {"timestamp": msg_timestamp, "data": value}
                 )
                 # Keep only last MAX_EVENTS_STORED events
                 latest_events[topic] = latest_events[topic][:MAX_EVENTS_STORED]
@@ -418,8 +448,10 @@ def consume_ai_predictions_thread(table_name, storage_key):
 
             # Add to AI predictions storage
             if storage_key in ai_predictions:
+                # Use Kafka message timestamp (when it was published to the topic)
+                msg_timestamp = msg.timestamp()[1]  # Returns (type, timestamp_ms)
                 ai_predictions[storage_key].insert(
-                    0, {"timestamp": datetime.now().isoformat(), "data": value}
+                    0, {"timestamp": msg_timestamp, "data": value}
                 )
                 # Keep only last MAX_AI_PREDICTIONS
                 ai_predictions[storage_key] = ai_predictions[storage_key][
