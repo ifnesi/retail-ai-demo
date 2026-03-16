@@ -34,46 +34,27 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────┐
-│              Infrastructure Setup                │
-│                         ┌───────────────────┐    │
-│             ┌──────────►│  AWS              │    │
-│             |           └───────────────────┘    │
-│  ┌──────────┴─┐         ┌───────────────────┐    │
-│  │ Terraform  │────────►│░░Confluent Cloud░░│    │
-│  └────────────┘         └───────────────────┘    │
-│        │                                         │
-│        │ Creates:                                │
-│        ├── Environment, Kafka cluster            │
-│        ├── Schema Registry                       │
-│        ├── Flink compute pool                    │
-│        ├── Topics with AVRO schemas              │
-│        ├── Flink SQL statements (AI)             │
-│        ├── API keys → Python config file         │
-│        ├── Postgres CDC Source Connector         │
-│        └── AWS RDS Postgres Database             |
-└──────────────────────────────────────────────────┘
-                       │
-                       ▼
-┌──────────────────────────────────────────────────┐
-│             Application Runtime                  │
-│                                                  │
-│  ┌─────────────────┐                             │
-│  │  React Frontend │                             │
-│  │  - Customer Tab │──┐                          │
-│  │  - Kafka Tab    │  │                          │
-│  │  - Dashboard    │  │                          │
-│  └─────────────────┘  │                          │
-│                       │                          │
-│  ┌─────────────────┐  │                          │
-│  │  Flask Backend  │◄─┘                          │
-│  │  - Events API   │                             │
-│  │  - Kafka client |                             │
-│  │  - Session Mgmt │                             │
-│  └────────┬────────┘                             │
-└───────────┼──────────────────────────────────────┘
-            │
-            ▼
+┌─────────────────────────┐   ┌──────────────────────────────────────────────────┐
+│   Application Runtime   │   │              Infrastructure Setup                │
+│                         │   │                         ┌───────────────────┐    │
+│  ┌─────────────────┐    │   │             ┌──────────►│  AWS              │    │
+│  │  React Frontend │    │   │             |           └───────────────────┘    │
+│  │  - Customer Tab │    │   │  ┌──────────┴─┐         ┌───────────────────┐    │
+│  │  - Kafka Tab    │    │   │  │ Terraform  │────────►│░░Confluent Cloud░░│    │
+│  │  - Dashboard    │    │   │  └────────────┘         └───────────────────┘    │
+│  └────────┬────────┘    │   │        │                                         │
+|           |             |   │        │ Creates:                                │
+│           ▼             │   │        ├── Environment, Kafka cluster            │
+│  ┌─────────────────┐    │   │        ├── Schema Registry                       │
+│  │  Flask Backend  │    │   │        ├── Flink compute pool                    │
+│  │  - Events API   │    │   │        ├── Topics with AVRO schemas              │
+│  │  - Kafka client |    │   │        ├── Flink SQL statements (AI)             │
+│  │  - Session Mgmt │    │   │        ├── API keys → Python config file         │
+│  └────────┬────────┘    │   │        ├── Postgres CDC Source Connector         │
+└───────────┼─────────────┘   │        └── AWS RDS Postgres Database             |
+            │                 └───────────┬──────────────────────────────────────┘
+            |                             |
+            ▼                             ▼
 ┌────────────────────────────────────────────────────────────────┐
 │░░░░░░░░░░░░░░░░░░░░ CONFLUENT CLOUD (AWS)░░░░░░░░░░░░░░░░░░░░░░│
 │░░┌─────────────────────────────────┐░░┌─────────────────────┐░░│
