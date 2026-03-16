@@ -84,7 +84,7 @@ This demo tells the story of **Clarice**, a busy professional shopping with **Ur
 │░░│    - db_public_stores           │░░░░░░░░░░ |░░░░░░░░░░░░░░░│
 │░░│    - db_public_users            │░░┌────────┴────────────┐░░|
 │░░│  Clickstream Events             |░░│  Postgres CDC       │░░|
-|░░|    - RETAIL_DEMO_VIEW_PRODUCT   │░░│  Connector          │░░|
+|░░|    - RETAIL_DEMO_VIEW_PRODUCT   │◄─│  Connector          │░░|
 |░░|    - RETAIL_DEMO_ADD_TO_CART    |░░│  (Fully Managed)    │░░|
 |░░|    - RETAIL_DEMO_ABANDON_CART   |░░└────────┬────────────┘░░|
 |░░|    - RETAIL_DEMO_STORE_ENTRY    |░░░░░░░░░░░│░░░░░░░░░░░░░░░|
