@@ -76,6 +76,6 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
-claude/
+.claude/
 CLAUDE.md
 GENAI_INTEGRATION.md
