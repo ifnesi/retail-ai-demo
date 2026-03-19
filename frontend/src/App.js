@@ -231,7 +231,18 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>Demo Flow: Act 1 (Discovery) → Act 2 (Cart Abandonment) → Act 3 (In-Store) → Act 4 (Partner) → Act 5 (Analytics)</p>
+        <div className="footer-content">
+          <span className="footer-label">Demo Flow:</span>
+          <span className="act-badge">Act 1 (Discovery)</span>
+          <span className="footer-arrow">→</span>
+          <span className="act-badge">Act 2 (Cart Abandonment)</span>
+          <span className="footer-arrow">→</span>
+          <span className="act-badge">Act 3 (In-Store)</span>
+          <span className="footer-arrow">→</span>
+          <span className="act-badge">Act 4 (Partner)</span>
+          <span className="footer-arrow">→</span>
+          <span className="act-badge">Act 5 (Analytics)</span>
+        </div>
       </footer>
 
       {showCartModal && (
