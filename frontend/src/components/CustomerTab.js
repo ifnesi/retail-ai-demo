@@ -319,7 +319,7 @@ function CustomerTab({ user, onLogin, cart, onAddToCart, showToast }) {
               <button className="btn btn-secondary" onClick={handleCloseModal}>
                 Close
               </button>
-              <button className="btn btn-primary" onClick={() => handleAddToCart(selectedProduct)}>
+              <button className="btn btn-success" onClick={() => handleAddToCart(selectedProduct)}>
                 Add to Cart
               </button>
             </div>
@@ -353,7 +353,7 @@ function CustomerTab({ user, onLogin, cart, onAddToCart, showToast }) {
                 Close
               </button>
               <button
-                className="btn btn-primary"
+                className="btn btn-success"
                 onClick={() => {
                   handleStoreEntry(selectedStore);
                   setSelectedStore(null);
@@ -392,7 +392,7 @@ function CustomerTab({ user, onLogin, cart, onAddToCart, showToast }) {
                 Close
               </button>
               <button
-                className="btn btn-primary"
+                className="btn btn-success"
                 onClick={() => handlePartnerBrowse(selectedPartner, selectedPartnerCategory)}
               >
                 Browse Category

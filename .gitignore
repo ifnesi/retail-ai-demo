@@ -79,3 +79,4 @@ htmlcov/
 .claude/
 CLAUDE.md
 GENAI_INTEGRATION.md
+.playwright-mcp

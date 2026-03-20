@@ -44,7 +44,7 @@ function CartModal({ cart, onClose, onAbandonCart, onContinueShopping }) {
         <div className="modal-footer">
           {cart.length > 0 && (
             <button className="btn btn-danger" onClick={onAbandonCart}>
-              Emulate Abandon Cart (Act 2)
+              Emulate Abandon Cart<br></br>(Act 2)
             </button>
           )}
           <button className="btn btn-primary" onClick={onContinueShopping}>

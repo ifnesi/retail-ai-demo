@@ -1,3 +1,7 @@
+/* ============================================
+   CART MODAL
+   ============================================ */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -9,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--z-modal);
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -27,13 +31,13 @@
 .modal-content {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
-  border-radius: 24px;
+  border-radius: var(--radius-2xl);
   width: 90%;
   max-width: 550px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-2xl), 0 0 0 1px rgba(255, 255, 255, 0.1);
   animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -53,22 +57,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem 2rem 1.5rem 2rem;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+  padding: var(--space-8) var(--space-8) var(--space-6) var(--space-8);
+  border-bottom: 2px solid var(--color-border-light);
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #1e293b;
-  font-size: 1.75rem;
-  font-weight: 700;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
 }
 
 .modal-close {
   background: rgba(0, 0, 0, 0.05);
   border: none;
-  font-size: 1.75rem;
-  color: #64748b;
+  font-size: var(--font-size-3xl);
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
   width: 40px;
@@ -76,66 +80,72 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-base);
   line-height: 1;
-  border-radius: 12px;
-  font-weight: 300;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-normal);
 }
 
 .modal-close:hover {
   background: rgba(239, 68, 68, 0.15);
-  color: #dc2626;
+  color: var(--color-danger-600);
   transform: rotate(90deg);
 }
 
+.modal-close:focus-visible {
+  outline: 3px solid var(--color-danger-500);
+  outline-offset: 2px;
+}
+
 .modal-body {
-  padding: 1.5rem;
+  padding: var(--space-6);
   overflow-y: auto;
   flex: 1;
 }
 
 .empty-cart {
   text-align: center;
-  padding: 3rem 1rem;
-  color: #999;
+  padding: var(--space-12) var(--space-4);
+  color: var(--color-text-tertiary);
 }
 
 .empty-cart p {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-base);
 }
 
 .empty-cart .hint {
-  color: #bbb;
-  font-size: 0.9rem;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
 }
 
 .cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
 .cart-modal-item {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 1.25rem;
+  gap: var(--space-5);
+  padding: var(--space-5);
   background: rgba(255, 255, 255, 0.7);
-  border-radius: 16px;
-  border: 2px solid #e2e8f0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--color-border-light);
+  transition: all var(--transition-base);
 }
 
 .cart-modal-item:hover {
   transform: translateX(4px);
-  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.1);
-  border-color: #0066cc;
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-600);
 }
 
 .item-icon {
-  font-size: 3rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  font-size: var(--font-size-5xl);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .item-details {
@@ -143,24 +153,24 @@
 }
 
 .item-name {
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.35rem;
-  font-size: 1.05rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-lg);
 }
 
 .item-category {
-  color: #94a3b8;
-  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .item-price {
-  font-size: 1.35rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-extrabold);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -170,23 +180,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: var(--space-6);
   background: linear-gradient(135deg, rgba(0, 102, 204, 0.12) 0%, rgba(0, 82, 163, 0.08) 100%);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   border: 2px solid rgba(0, 102, 204, 0.2);
-  box-shadow: 0 4px 16px rgba(0, 102, 204, 0.15);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.cart-total-section:hover {
+  box-shadow: var(--shadow-primary);
+  transform: scale(1.01);
 }
 
 .cart-total-label {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
 .cart-total-value {
-  font-size: 1.75rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -194,9 +210,9 @@
 
 .modal-footer {
   display: flex;
-  gap: 1rem;
-  padding: 1.5rem 2rem 2rem 2rem;
-  border-top: 2px solid rgba(0, 0, 0, 0.06);
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-8) var(--space-8) var(--space-8);
+  border-top: 2px solid var(--color-border-light);
 }
 
 .modal-footer button {
