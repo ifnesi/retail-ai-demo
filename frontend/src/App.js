@@ -10,6 +10,15 @@ import Toast from './components/Toast';
 axios.defaults.withCredentials = true;
 
 function App() {
+  // Helper function to format AI responses with bold text and line breaks
+  const formatAIResponse = (text) => {
+    if (!text) return text;
+    // Replace **text** with <strong>text</strong> and \n with <br>
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  };
+
   const [activeTab, setActiveTab] = useState('customer');
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState([]);
@@ -22,8 +31,8 @@ function App() {
   });
   const shownPredictionsRef = React.useRef(new Set());
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
+  const showToast = (message, type = 'success', isHtml = false) => {
+    setToast({ message, type, isHtml });
   };
 
   useEffect(() => {
@@ -78,7 +87,7 @@ function App() {
             }
           }
         }
-        showToast(`💰 AI Cart Recovery: ${nudgeMessage}`, 'success');
+        showToast(`💰 AI Cart Recovery: ${formatAIResponse(nudgeMessage)}`, 'success', true);
       }
     });
 
@@ -96,7 +105,7 @@ function App() {
             welcomeMessage = data.llm_output.string;
           }
         }
-        showToast(`🏪 AI In-Store Context: ${welcomeMessage}`, 'success');
+        showToast(`🏪 AI In-Store Context: ${formatAIResponse(welcomeMessage)}`, 'success', true);
       }
     });
 
@@ -114,7 +123,7 @@ function App() {
             adCopy = data.llm_output.string;
           }
         }
-        showToast(`📢 AI Partner Retail Media: ${adCopy}`, 'success');
+        showToast(`📢 AI Partner Retail Media: ${formatAIResponse(adCopy)}`, 'success', true);
       }
     });
   }, [aiPredictions]);
@@ -258,6 +267,7 @@ function App() {
         <Toast
           message={toast.message}
           type={toast.type}
+          isHtml={toast.isHtml}
           onClose={() => setToast(null)}
         />
       )}

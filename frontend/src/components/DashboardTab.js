@@ -6,6 +6,18 @@ import { buildCartRecoveryContext, buildStoreContext, buildPartnerAdContext } fr
 
 function DashboardTab({ user, aiPredictions }) {
   const [expandedPrompts, setExpandedPrompts] = useState({});
+
+  // Helper function to format AI responses with bold text and line breaks
+  const formatAIResponse = (text) => {
+    if (!text) return text;
+
+    // Replace **text** with <strong>text</strong> and \n with <br>
+    const formatted = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+
+    return <span dangerouslySetInnerHTML={{ __html: formatted }} />;
+  };
   const [metrics, setMetrics] = useState({
     viewsCount: 0,
     cartAdds: 0,
@@ -294,7 +306,7 @@ function DashboardTab({ user, aiPredictions }) {
                 </div>
                 <div className="rec-message">{rec.message}</div>
                 <div className="rec-action">
-                  <strong>{rec.isAiGenerated ? 'AI Response:' : 'Action:'}</strong> {rec.action}
+                  <strong>{rec.isAiGenerated ? 'AI Response:' : 'Action:'}</strong> {rec.isAiGenerated ? formatAIResponse(rec.action) : rec.action}
                 </div>
                 <div className="rec-uplift">
                   <strong>Expected Impact:</strong> {rec.uplift}
@@ -316,11 +328,11 @@ function DashboardTab({ user, aiPredictions }) {
                       <div className="prompt-content">
                         <div className="prompt-section">
                           <strong>🎯 System Prompt (from Flink SQL Model):</strong>
-                          <div className="prompt-text">{rec.systemPrompt}</div>
+                          <div className="prompt-text">{formatAIResponse(rec.systemPrompt)}</div>
                         </div>
                         <div className="prompt-section">
                           <strong>📝 Input Context (sent to LLM):</strong>
-                          <div className="prompt-text">{rec.inputContext}</div>
+                          <div className="prompt-text">{formatAIResponse(rec.inputContext)}</div>
                         </div>
                       </div>
                     )}
